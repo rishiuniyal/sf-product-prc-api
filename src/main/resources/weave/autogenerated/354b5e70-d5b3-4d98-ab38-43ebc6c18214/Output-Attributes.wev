@@ -1,0 +1,9 @@
+%dw 2.0
+
+type auto_354b5e70_d5b3_4d98_ab38_43ebc6c18214_Output_Attributes = {|
+  headers: {|
+    "obj-name": String, 
+    operation: String
+  |}
+|}
+

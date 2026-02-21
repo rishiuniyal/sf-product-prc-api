@@ -1,0 +1,15 @@
+%dw 2.0
+
+type auto_54d82b14_7462_4bf5_bd2b_4c0287aeea28_Output_Payload = {
+  api?: {
+    environment?: String, 
+    name?: String, 
+    version?: String, 
+    _?: Any
+  } {"description": "This is the health check raml for the api"}, 
+  message: String, 
+  status: "ERROR" | "OK", 
+  timestamp?: String, 
+  _?: Any
+}
+

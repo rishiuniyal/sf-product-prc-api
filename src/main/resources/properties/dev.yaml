@@ -1,0 +1,17 @@
+# Development environment-specific properties
+
+http:
+  request:
+    host: "localhost"
+    port: "8084"
+    responseTimeout: "30000"
+    maxConn: '-1'
+    idleTimeout: '30000'
+    
+  currency-sapi:
+      host: "localhost"
+      port: "8085"
+    
+    
+autodiscovery:
+  id: "1234"

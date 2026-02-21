@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+
+	<!-- [STUDIO:"currency-code-check-sub-flow"]<sub-flow name="currency-code-check-sub-flow" doc:id="f1debe26-a207-439a-b696-cc2ba9ce06ec" >
+		<choice doc:name="Check currency code in request" doc:id="3781e2d4-869d-424c-b6fd-eac64a1499bb">
+			<when expression="#[!isEmpty(attributes.queryParams.currencyCode)&#93;">
+				<flow-ref doc:name="currency-exchange-sub-flow" doc:id="9c30c591-7943-42a4-ab42-a181241de2f6" name="sys-api-request-sub-flow" target="currencyRates" />
+				<choice doc:name="Check valid currency code" doc:id="d450ab76-36bd-48fb-8059-b40ef04c3663">
+					<when expression="#[isEmpty(vars.currencyRates.rates[vars.currencyCode&#93;)&#93;">
+						<logger level="ERROR" doc:name="ERROR: invalid currency code" doc:id="91d50bef-fa3a-4708-b160-6a3c11602ed6" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;&#45;&#45;-&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;Invalid currency code in the request / Conversion rate not available for this currency code&quot;,&#10;        &quot;log-tracepoint&quot;: &quot;&quot;,&#10;        &quot;Log-Level&quot;:&quot;ERROR&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}&#93;" />
+						<raise-error doc:name="Invalid currency code error" doc:id="c969849b-c058-475f-8558-65a93f365396" type="CURRENCY:INVALID_CODE" description="Invalid currency code in the request / Conversion rate not available for this currency code"/>
+					</when>
+				</choice>
+				<set-variable value="#[output application/json&#10;&#45;&#45;-&#10;vars.currencyRates.rates[vars.currencyCode&#93;&#93;" doc:name="conversionRate" doc:id="c13db2fa-eba1-41c5-a814-b5011b279adb" variableName="conversionRate"/>
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="INFO: return records with default currency code" doc:id="85b27e50-ec0b-42a6-8bb0-2303c8de13d7" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;&#45;&#45;-&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;return records with default currency code&quot;,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}&#93;" />
+			</otherwise>
+		</choice>
+	</sub-flow> [STUDIO] -->
+	<sub-flow name="sys-api-request-sub-flow" doc:id="354b5e70-d5b3-4d98-ab38-43ebc6c18214" >
+		<logger level="INFO" doc:name="INFO: start of sys api request sub flow" doc:id="8e7a8a28-60cb-4ae0-9047-9ca84effe93b" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of sys api request sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
+		<logger level="DEBUG" doc:name="DEBUG: start of sys api request sub flow" doc:id="e2926864-2ea1-47b4-b784-2636565fe2c9" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of sys api request sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
+		<until-successful maxRetries="${reconnection.attempts}" doc:name="Until Successful" doc:id="44388a26-d315-4582-b1cb-9a1e785859d8" millisBetweenRetries="${reconnection.frequency}">
+			<http:request method="#[vars.method]" doc:name="SF System API Request" doc:id="1ae915dc-0eb7-43ad-ac98-b4d17da5cc3a" config-ref="sf-sys-api-http-request-config" responseTimeout="${http.request.responseTimeout}" path="${http.request.path}" sendCorrelationId="ALWAYS">
+				<http:headers ><![CDATA[#[output application/json
+---
+{
+	"client_id": p('http.request.clientId'),
+	"client_secret": p('http.request.secret')
+}]]]></http:headers>
+				<http:uri-params ><![CDATA[#[output application/json
+---
+{
+	("productId": vars.productId) if(!isEmpty(vars.productId))
+}]]]></http:uri-params>
+				<http:query-params ><![CDATA[#[output aplication/json
+---
+{
+	("limit": vars.limit) if(!isEmpty(vars.limit)),
+	("offset": vars.offset) if(!isEmpty(vars.offset)),
+	("currencyCode": vars.currencyCode) if(!isEmpty(vars.currencyCode))
+}]]]></http:query-params>
+			</http:request>
+		</until-successful>
+		<logger level="DEBUG" doc:name="DEBUG: end of sys api request sub flow" doc:id="a3f5c189-e966-48a6-a561-e337ee3e322d" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of sys api request sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AFTER_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
+		<logger level="INFO" doc:name="INFO: end of sys api request sub flow" doc:id="33c87ce9-40c7-4562-8889-30e891ecab89" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of sys api request sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AFTER_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null   &#10;    }&#10;}]" />
+	</sub-flow>
+	<sub-flow name="currency-exchange-sub-flow" doc:id="25bb4e9a-40c4-42b8-a016-8ce001e1cc62" >
+		<logger level="INFO" doc:name="INFO: start of currency exchange sub flow" doc:id="31c931ce-a823-480a-b5cb-56993c8176a1" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of fetch records sub flow&quot;,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
+		<logger level="DEBUG" doc:name="DEBUG: start of currency exchange sub flow" doc:id="3502eeca-5adf-4774-bcc8-994b458bd7b5" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of fetch records sub flow&quot;,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
+		<until-successful maxRetries="${reconnection.attempts}" doc:name="Until Successful" doc:id="d64de38a-498b-4c5b-bbcf-8704d1d26274" millisBetweenRetries="${reconnection.frequency}" >
+			<http:request method="GET" doc:name="Current Exchange Request" doc:id="22a500db-77bb-40ac-bad5-2bf77f8a63f2" responseTimeout="${http.request.responseTimeout}" path="${http.currency-sapi.path}" config-ref="curreny-converter-http-request-config" sendCorrelationId="ALWAYS"/>
+		</until-successful>
+		<logger level="DEBUG" doc:name="DEBUG: end of currency exchange sub flow" doc:id="1e127a0e-959f-4a73-8dd6-c3d019b06350" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of fetch records sub flow&quot;,&#10;        &quot;log-tracepoint&quot;: &quot;AFTER_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
+		<logger level="INFO" doc:name="INFO: end of currency exchange sub flow" doc:id="4fa64ae7-62b6-46cd-95bc-891881a616d3" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of fetch records sub flow&quot;,&#10;        &quot;log-tracepoint&quot;: &quot;AFTER_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null   &#10;    }&#10;}]" />
+	</sub-flow>
+</mule>

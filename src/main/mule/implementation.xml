@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:salesforce-composite="http://www.mulesoft.org/schema/mule/salesforce-composite"
+	xmlns:outlook365="http://www.mulesoft.org/schema/mule/outlook365"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/outlook365 http://www.mulesoft.org/schema/mule/outlook365/current/mule-outlook365.xsd
+http://www.mulesoft.org/schema/mule/salesforce-composite http://www.mulesoft.org/schema/mule/salesforce-composite/current/mule-salesforce-composite.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<sub-flow name="get-sf-products-sub-flow" doc:id="d01572fb-527b-444f-8a55-ca7f33646b87" >
+		<logger level="INFO" doc:name="INFO: start of products sub flow" doc:id="5ac367f3-4550-40f5-8197-f7931ba59206" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of fetch products sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_START&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]"/>
+		<logger level="DEBUG" doc:name="DEBUG: start of fetch products sub flow" doc:id="6f56021d-4aa7-40fa-9cf4-66955e31429e" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of fetch products sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
+		<ee:transform doc:name="Setting common variables" doc:id="4ceb2bba-3f00-4fbc-b411-d09a02c71ac0" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="limit" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.queryParams.limit]]></ee:set-variable>
+				<ee:set-variable variableName="offset" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.queryParams.offset]]></ee:set-variable>
+				<ee:set-variable variableName="currencyCode" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.queryParams.currencyCode]]></ee:set-variable>
+				<ee:set-variable variableName="originalPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+				<ee:set-variable variableName="method" ><![CDATA[%dw 2.0
+output application/json
+---
+"GET"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<!-- [STUDIO:"currency-code-check-sub-flow"]<flow-ref doc:name="currency-code-check-sub-flow" doc:id="4d35d022-d2fc-4ae1-9365-6d0a7f218f92" name="currency-code-check-sub-flow" /> [STUDIO] -->
+		<flow-ref doc:name="sys-api-request-sub-flow" doc:id="dc68f8fe-425b-402d-96ed-70088c9a5037" name="sys-api-request-sub-flow" />
+		<choice doc:name="Choice" doc:id="3ad117ad-baab-4161-833e-aaeeb23f6455" >
+			<when expression="#[!isEmpty(vars.currencyCode)]">
+				<flow-ref doc:name="currency-rate-sub-flow" doc:id="5b5163eb-e175-4482-a623-4701fbc0ed0f" name="sys-api-request-sub-flow" target="currencyRates" />
+				<set-variable value="#[output application/json&#10;---&#10;vars.currencyRates.rates[vars.currencyCode]]" doc:name="conversionRate" doc:id="1ddf54f1-0516-42a8-b6f2-4759e6dedd89" variableName="conversionRate" />
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="INFO: return records with default currency code" doc:id="35c993d0-b818-4838-af21-d06ff0c39ab5" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;return records with default currency code&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Payload to JSON" doc:id="f56c37b2-855b-43ee-a13a-77e09f582399" >
+			<ee:message >
+				<ee:set-payload resource="dwl/msg-get-payload-to-json.dwl" />
+			</ee:message>
+		</ee:transform>
+		<logger level="DEBUG" doc:name="DEBUG: end of fetch products sub flow" doc:id="9ab042ec-3c30-425a-81ce-8bcf79ef280e" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of fetch products sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_END&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}"/>
+		<logger level="INFO" doc:name="INFO: end of fetch products sub flow" doc:id="7ef03cbf-6a34-42ce-9cf0-f72207ca565e" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of fetch products sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_END&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null   &#10;    }&#10;}]" />
+	
+</sub-flow>
+	<sub-flow name="create-sf-products-sub-flow" doc:id="a94cc9b5-d1ab-4bdf-bb17-6f569003c743">
+		<logger level="INFO" doc:name="INFO: start of create-sf-products-sub-flow" doc:id="5d80dab3-016e-45cf-a939-13aee2167e3d" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of create-sf-products-sub-flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_START&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
+		<logger level="DEBUG" doc:name="DEBUG: start of create-sf-products-sub-flow" doc:id="8057eda3-b7f7-421d-b6a0-9e15ac38c1e3" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of create-sf-products-sub-flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
+		<ee:transform doc:name="Setting common variables" doc:id="3a33d0f3-6fb1-4271-ac34-20957505b9f5">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="method"><![CDATA[%dw 2.0
+output application/json
+---
+"POST"]]></ee:set-variable>
+				<ee:set-variable variableName="originalPayload"><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="currency-rate-sub-flow" doc:id="a6d1063b-01e9-4293-be9f-06a8f436095b" name="sys-api-request-sub-flow" target="currencyRates" />
+		<ee:transform doc:name="Payload with Converted Currency" doc:id="0e367e00-b988-4572-a2ed-bfb6134479a0">
+			<ee:message>
+				<ee:set-payload resource="dwl/msg-update-payload.dwl" />
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="originalPayload"><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="sys-api-request-sub-flow" doc:id="ce4b1dba-bdbe-4bbd-a3dd-72f4d8998af9" name="sys-api-request-sub-flow" />
+		<ee:transform doc:name="Payload to JSON" doc:id="62ab514f-2d12-4748-9ed6-3e87ad7d4015">
+			<ee:message>
+				<ee:set-payload resource="dwl/msg-create-payload-to-json.dwl" />
+			</ee:message>
+		</ee:transform>
+		<logger level="DEBUG" doc:name="DEBUG: end of create-sf-records-sub-flow" doc:id="03ec4425-8b5d-4ea9-b73e-ea627f2b8d18" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of create-sf-records-sub-flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AFTER_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
+		<logger level="INFO" doc:name="INFO: end of create-sf-records-sub-flow" doc:id="75c46486-08c3-4906-85d3-7cfaab279335" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of create-sf-products-sub-flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_END&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null   &#10;    }&#10;}]" />
+	</sub-flow>
+	<sub-flow name="update-product-in-sf-sub-flow" doc:id="ecd383ae-7b4d-465e-940f-c84a785d6a97" >
+		<logger level="INFO" doc:name="INFO: start of update product sub flow" doc:id="4547e40f-9219-49d3-bfc3-c5294385fa76" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of update product sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_START&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null     &#10;    }&#10;}]" />
+		<logger level="DEBUG" doc:name="DEBUG: start of update product sub flow" doc:id="dd4ee4f5-a5ba-47d1-801a-aef76bf75440" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of update product sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}"/>
+		<ee:transform doc:name="Setting common variables" doc:id="2b2b8084-007a-4b49-9bfb-bee379290adf">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="method"><![CDATA[%dw 2.0
+output application/json
+---
+"PUT"]]></ee:set-variable>
+				<ee:set-variable variableName="originalPayload"><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+				<ee:set-variable variableName="productId" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.queryParams.productId]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="sys-api-request-sub-flow" doc:id="88c45e45-d6bb-4da8-8aa7-b066ba618d07" name="sys-api-request-sub-flow" />
+		<ee:transform doc:name="Payload to JSON" doc:id="6e1b56d3-2f4c-4359-ab76-ccf337ac5569" >
+			<ee:message >
+				<ee:set-payload resource="dwl/msg-update-payload-to-json.dwl" />
+			</ee:message>
+		</ee:transform>
+		<logger level="DEBUG" doc:name="DEBUG: end of update product sub flow" doc:id="9e6e64bf-2d9e-4640-8a4f-ac7da6f1d50c" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of update product sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_END&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}"/>
+		<logger level="INFO" doc:name="INFO: end of update product sub flow" doc:id="e4a6a7e2-2466-449c-872c-207702bda070" message="#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of update product sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_END&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null       &#10;    }&#10;}]" />
+	</sub-flow>
+	<sub-flow name="delete-sf-product-sub-flow" doc:id="af196f4d-21e2-4248-b011-ca8523a887c6" >
+		<logger level="INFO" doc:name="INFO: start of delete product sub flow" doc:id="d9fd9fde-a248-4172-a35b-f08d96b79592" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of delete product sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_START&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
+		<logger level="DEBUG" doc:name="DEBUG: start of delete product sub flow" doc:id="d04aae74-61cc-4e7b-bbd0-9289a4f3db83" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of delete product sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
+		<ee:transform doc:name="Setting common variables" doc:id="9ba451f8-3b2a-479b-bd50-3266e6510717">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="method"><![CDATA[%dw 2.0
+output application/json
+---
+"DELETE"]]></ee:set-variable>
+				<ee:set-variable variableName="originalPayload"><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+				<ee:set-variable variableName="productId" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.queryParams.productId]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="sys-api-request-sub-flow" doc:id="6b8da52a-dd2d-4f21-aa5d-baf334ab4534" name="sys-api-request-sub-flow" />
+		<ee:transform doc:name="Payload to JSON" doc:id="842a2525-ad46-4421-a0b8-97c5686dab37" >
+			<ee:message >
+				<ee:set-payload resource="dwl/msg-delete-payload-to-json.dwl" />
+			</ee:message>
+		</ee:transform>
+		<logger level="DEBUG" doc:name="DEBUG: end of delete product sub flow" doc:id="be2785bd-2207-4e6e-9260-ede757ce869b" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of delete product sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_END&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
+		<logger level="INFO" doc:name="INFO: end of delete product sub flow" doc:id="e05a0021-2a8c-4dad-be46-4730d3a95a75" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of delete product sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_END&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null   &#10;    }&#10;}]" />
+	</sub-flow>
+
+</mule>

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <mule
-	xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org
-http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 
 	<!-- [STUDIO:"currency-code-check-sub-flow"]<sub-flow name="currency-code-check-sub-flow" doc:id="f1debe26-a207-439a-b696-cc2ba9ce06ec" >
 		<choice doc:name="Check currency code in request" doc:id="3781e2d4-869d-424c-b6fd-eac64a1499bb">
@@ -25,20 +26,16 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 	<sub-flow name="sys-api-request-sub-flow" doc:id="354b5e70-d5b3-4d98-ab38-43ebc6c18214" >
 		<logger level="INFO" doc:name="INFO: start of sys api request sub flow" doc:id="8e7a8a28-60cb-4ae0-9047-9ca84effe93b" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of sys api request sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
 		<logger level="DEBUG" doc:name="DEBUG: start of sys api request sub flow" doc:id="e2926864-2ea1-47b4-b784-2636565fe2c9" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of sys api request sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
-		<until-successful maxRetries="${reconnection.attempts}" doc:name="Until Successful" doc:id="44388a26-d315-4582-b1cb-9a1e785859d8" millisBetweenRetries="${reconnection.frequency}">
-			<http:request method="#[vars.method]" doc:name="SF System API Request" doc:id="1ae915dc-0eb7-43ad-ac98-b4d17da5cc3a" config-ref="sf-sys-api-http-request-config" responseTimeout="${http.request.responseTimeout}" path="${http.request.path}" sendCorrelationId="ALWAYS">
-				<http:headers ><![CDATA[#[output application/json
+		<until-successful maxRetries="${reconnection.attempts}" doc:name="Until Successful1" doc:id="599e5439-5950-4acb-bd0d-c566095f489b" millisBetweenRetries="${reconnection.frequency}">
+			<try doc:name="Try" doc:id="ede9ca85-0fea-4c17-bc6a-0f6f947f00ed">
+				<http:request method="#[vars.method]" doc:name="SF System API Request" doc:id="1ae915dc-0eb7-43ad-ac98-b4d17da5cc3a" config-ref="sf-sys-api-http-request-config" responseTimeout="${http.request.responseTimeout}" path="#[if(!isEmpty(vars.productId)) (p('http.request.path') ++ &quot;/&quot; ++ (vars.productId as String))&#10;else (p('http.request.path'))]" sendCorrelationId="ALWAYS">
+				<http:headers><![CDATA[#[output application/json
 ---
 {
 	"client_id": p('http.request.clientId'),
 	"client_secret": p('http.request.secret')
 }]]]></http:headers>
-				<http:uri-params ><![CDATA[#[output application/json
----
-{
-	("productId": vars.productId) if(!isEmpty(vars.productId))
-}]]]></http:uri-params>
-				<http:query-params ><![CDATA[#[output aplication/json
+				<http:query-params><![CDATA[#[output aplication/json
 ---
 {
 	("limit": vars.limit) if(!isEmpty(vars.limit)),
@@ -46,16 +43,49 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 	("currencyCode": vars.currencyCode) if(!isEmpty(vars.currencyCode))
 }]]]></http:query-params>
 			</http:request>
+				<error-handler>
+					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="de93ade3-8eb7-4e43-9585-11cd236ff27e" type="HTTP:BAD_GATEWAY, HTTP:CONNECTIVITY, HTTP:SERVICE_UNAVAILABLE">
+						<logger level="ERROR" doc:name="ERROR: server error from upstream" doc:id="df6daaf0-53be-4c9f-9466-1f12111dc4f6" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;server error from upstream system&quot;,&#10;        &quot;app&quot;:app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AT_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
+					</on-error-propagate>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="e52c1667-4062-4b12-a537-56cdd0a5d01f">
+						<set-variable value='#[{&#10;	"errorDescription": error.description,&#10;	"errorType": (error.errorType.namespace default "") ++ ":" ++ (error.errorType.identifier default "")&#10;	&#10;}]' doc:name="errorMessage" doc:id="fe0e1f20-edd1-4629-8c9b-ef3db1ee7d49" variableName="errorMessage" />
+						<logger level="INFO" doc:name="INFO: continue non retry error" doc:id="a829c220-681f-4c6e-bbf5-fdeb133d8572" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;continue non retry error&quot;,&#10;        &quot;app&quot;:app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AT_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
+					</on-error-continue>
+				</error-handler>
+			</try>
 		</until-successful>
+		<choice doc:name="Check for non retry errors" doc:id="cb2fdcc6-3bd0-46d3-a40b-a33e12abecc0">
+			<when expression="#[!isEmpty(vars.errorMessage)]">
+				<raise-error doc:name="Raise APP:ERROR" doc:id="831bd54b-0bae-43c5-952f-2f4cd467239c" type="APP:NON_RETRYABLE" description="#[vars.errorMessage.errorDescription]" />
+			</when>
+		</choice>
 		<logger level="DEBUG" doc:name="DEBUG: end of sys api request sub flow" doc:id="a3f5c189-e966-48a6-a561-e337ee3e322d" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of sys api request sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AFTER_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
 		<logger level="INFO" doc:name="INFO: end of sys api request sub flow" doc:id="33c87ce9-40c7-4562-8889-30e891ecab89" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of sys api request sub flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AFTER_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null   &#10;    }&#10;}]" />
 	</sub-flow>
 	<sub-flow name="currency-exchange-sub-flow" doc:id="25bb4e9a-40c4-42b8-a016-8ce001e1cc62" >
 		<logger level="INFO" doc:name="INFO: start of currency exchange sub flow" doc:id="31c931ce-a823-480a-b5cb-56993c8176a1" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of fetch records sub flow&quot;,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
 		<logger level="DEBUG" doc:name="DEBUG: start of currency exchange sub flow" doc:id="3502eeca-5adf-4774-bcc8-994b458bd7b5" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of fetch records sub flow&quot;,&#10;        &quot;log-tracepoint&quot;: &quot;BEFORE_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
-		<until-successful maxRetries="${reconnection.attempts}" doc:name="Until Successful" doc:id="d64de38a-498b-4c5b-bbcf-8704d1d26274" millisBetweenRetries="${reconnection.frequency}" >
-			<http:request method="GET" doc:name="Current Exchange Request" doc:id="22a500db-77bb-40ac-bad5-2bf77f8a63f2" responseTimeout="${http.request.responseTimeout}" path="${http.currency-sapi.path}" config-ref="curreny-converter-http-request-config" sendCorrelationId="ALWAYS"/>
+		<until-successful maxRetries="${reconnection.attempts}" doc:name="Until Successful1" doc:id="32acf5ad-29d5-4c32-a164-547791c5c8ed" millisBetweenRetries="${reconnection.frequency}">
+			<try doc:name="Try" doc:id="a7344dcc-936c-4790-ba47-143f4ebf1746">
+				<ee:cache doc:name="Cache" doc:id="72d5c086-1ef5-4941-83cb-65d1e192b994" cachingStrategy-ref="currency-sap-caching-config">
+					<http:request method="GET" doc:name="Current Exchange Request" doc:id="22a500db-77bb-40ac-bad5-2bf77f8a63f2" responseTimeout="${http.request.responseTimeout}" config-ref="curreny-converter-http-request-config" sendCorrelationId="ALWAYS" url="https://currency-exchange-api-v1-esulbe.5sc6y6-3.usa-e2.cloudhub.io/exchange" />
+				</ee:cache>
+				<error-handler>
+					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2ece925b-7a50-4b22-9cb4-07e3b9080789" type="HTTP:BAD_GATEWAY, HTTP:CONNECTIVITY, HTTP:SERVICE_UNAVAILABLE">
+						<logger level="ERROR" doc:name="ERROR: server error from upstream" doc:id="bfc519b0-31ec-40b1-8712-0979d045107a" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;server error from upstream system&quot;,&#10;        &quot;app&quot;:app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AT_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
+					</on-error-propagate>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c1e034bd-dbed-4ed7-a1ee-a0cbec7a921d">
+						<set-variable value='#[{&#10;	"errorDescription": error.description,&#10;	"errorType": (error.errorType.namespace default "") ++ ":" ++ (error.errorType.identifier default "")&#10;	&#10;}]' doc:name="errorMessage" doc:id="3c22202f-d3cf-4d28-a307-da76b2ef87d3" variableName="errorMessage" />
+						<logger level="INFO" doc:name="INFO: continue non retry error" doc:id="7c0a4206-ea0e-4a9c-b5bb-9a7a370db622" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;continue non retry error&quot;,&#10;        &quot;app&quot;:app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AT_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
+					</on-error-continue>
+				</error-handler>
+			</try>
 		</until-successful>
+		<choice doc:name="Check for non retry errors" doc:id="669d094e-7032-4d3f-9eb6-1eadd05fd662">
+			<when expression="#[!isEmpty(vars.errorMessage)]">
+				<raise-error doc:name="Raise APP:ERROR" doc:id="4051e3fd-b77c-4ef4-bd17-8ad72861bc11" type="APP:NON_RETRYABLE" description="#[vars.errorMessage.errorDescription]" />
+			</when>
+		</choice>
 		<logger level="DEBUG" doc:name="DEBUG: end of currency exchange sub flow" doc:id="1e127a0e-959f-4a73-8dd6-c3d019b06350" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of fetch records sub flow&quot;,&#10;        &quot;log-tracepoint&quot;: &quot;AFTER_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
 		<logger level="INFO" doc:name="INFO: end of currency exchange sub flow" doc:id="4fa64ae7-62b6-46cd-95bc-891881a616d3" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of fetch records sub flow&quot;,&#10;        &quot;log-tracepoint&quot;: &quot;AFTER_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null   &#10;    }&#10;}]" />
 	</sub-flow>

@@ -2,17 +2,15 @@
 
 http:
   request:
-    host: "localhost"
-    port: "8084"
+    host: ""
+    port: ""
     responseTimeout: "30000"
     maxConn: '-1'
     idleTimeout: '30000'
     
     currency-sapi:
-      host: "localhost"
-      port: "8085"
-    clientId: ""
-    clientSecret: ""
+      host: ""
+      port: ""
     
     
 autodiscovery:

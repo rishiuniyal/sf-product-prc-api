@@ -6,7 +6,7 @@
 	<artifactId>sf-products-prc-api</artifactId>
 	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
-	<name>sf-products-prc-api</name>
+	<name>sf-products-prc-api-dev</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -180,9 +180,15 @@
 		<dependency>
 			<groupId>020f4d86-fd4b-4d1d-9b27-999b89093231</groupId>
 			<artifactId>sf-products-prc-api</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.2</version>
 			<classifier>raml</classifier>
 			<type>zip</type>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.connectors</groupId>
+			<artifactId>mule-objectstore-connector</artifactId>
+			<version>1.2.5</version>
+			<classifier>mule-plugin</classifier>
 		</dependency>
 	</dependencies>
 

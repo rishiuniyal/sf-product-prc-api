@@ -1,5 +1,6 @@
 %dw 2.0
 output application/json
+var suppressed = error.suppressedErrors[0] default[]
 ---
 {
 	api: Mule::p('application.name') as String,
@@ -8,6 +9,13 @@ output application/json
 	statusCode: vars.httpStatus as Number default 500,
 	timestamp: now() as String,
 	correlationId: correlationId,
-	errorType: ((error.errorType.namespace default "") ++ ":" ++ (error.errorType.identifier default "")),
-	errorMessage: error.description
+	errorType: if(!isEmpty(suppressed))
+					(suppressed.errorType.namespace default "" ++ ":" ++ suppressed.errorType.identifier default "")
+			   else
+					vars.errorMesssage.errorType default ((error.errorType.namespace default "") ++ ":" ++ (error.errorType.identifier default "")),
+	
+	errorMessage: if(!isEmpty(suppressed))
+					suppressed.description default error.description
+				  else
+					error.errorMessage.payload.errorMessage default error.description
 }

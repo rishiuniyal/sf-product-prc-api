@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="success-test-cases.xml" />
+	<munit:test name="get-products-test" doc:id="b7a93c9b-db1e-4c57-a947-e4dd414403ae" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when System API Request" doc:id="2ae3ef74-da07-4e4d-b64f-4fff8fc304c1" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="1ae915dc-0eb7-43ad-ac98-b4d17da5cc3a" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="sf-sys-api-http-request-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[output application/json&#10;---&#10;[&#10;    {&#10;        "ProductPrice__c": 1412.88,&#10;        "Description": "GenWatt Diesel Generator 1000kW - Product Code GC1060",&#10;        "ProductCode": "GC1060",&#10;        "ExternalId": "P00000000001",&#10;        "Id": "01tg5000002hzlRAAQ",&#10;        "type": "Product2",&#10;        "CurrencyCode__c": "AUD",&#10;        "Name": "GenWatt Diesel Gen 1000kW"&#10;    },&#10;    {&#10;        "ProductPrice__c": 282.84,&#10;        "Description": "GenWatt Diesel Generator 200kW - Product Code GC1040",&#10;        "ProductCode": "GC1040",&#10;        "ExternalId": "P00000000002",&#10;        "Id": "01tg5000002hzlSAAQ",&#10;        "type": "Product2",&#10;        "CurrencyCode__c": "AUD",&#10;        "Name": "GenWatt Diesel 200kW"&#10;    }&#10;]]' mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when Currency System API Request1" doc:id="4d27196c-89a9-4bd6-82ee-ed9abe15e751" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Current Exchange Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="22a500db-77bb-40ac-bad5-2bf77f8a63f2" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[output application/json&#10;---&#10;{&#10;    "base": "USD",&#10;    "date": "2026-02-23",&#10;    "rates": {&#10;        "INR": 90.75605,&#10;        "AUD": 1.4126289,&#10;        "EUR": 0.846134645,&#10;        "CAD": 1.36779801,&#10;        "GBP": 0.7418673,&#10;        "JPY": 154.4325,&#10;        "CNY": 6.90875,&#10;        "RUB": 76.4744075&#10;    }&#10;}]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="get:\v1\prc\products:sf-products-prc-api-config" doc:id="4caede9b-7c02-442d-9422-28c2677f14d6" name="get:\v1\prc\products:sf-products-prc-api-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload not null" doc:id="4d77e3a0-dbe1-418e-b7cb-ceed35ba2b62" />
+			<munit-tools:verify-call doc:name="Verify call end logger" doc:id="b2047b5b-17f9-41de-9119-aca098e2bd35" processor="logger" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO: end of fetch products sub flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="7ef03cbf-6a34-42ce-9cf0-f72207ca565e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="create-products-test" doc:id="995ddfe9-9cfc-4090-94f2-0e3ea97289d2" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when Currency System API Request" doc:id="d01efb1f-ea77-48ca-8b53-f71d20c3ff9c" processor="http:request">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="Current Exchange Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="22a500db-77bb-40ac-bad5-2bf77f8a63f2" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value='#[output application/json&#10;---&#10;{&#10;    "base": "USD",&#10;    "date": "2026-02-23",&#10;    "rates": {&#10;        "INR": 90.75605,&#10;        "AUD": 1.4126289,&#10;        "EUR": 0.846134645,&#10;        "CAD": 1.36779801,&#10;        "GBP": 0.7418673,&#10;        "JPY": 154.4325,&#10;        "CNY": 6.90875,&#10;        "RUB": 76.4744075&#10;    }&#10;}]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when System API Request" doc:id="3dbd33d9-f2bd-46c1-90d6-3b3d603f7ee5" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="1ae915dc-0eb7-43ad-ac98-b4d17da5cc3a" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="sf-sys-api-http-request-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[output application/json&#10;---&#10;[&#10;    {&#10;        "Id": "01tg50000034MwHAAU",&#10;        "Success": true&#10;    }&#10;]]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event payload" doc:id="0e481dfd-f0c9-40cb-a2f6-9b58e0dd6e8e" >
+				<munit:payload value='#[output application/json&#10;---&#10;[&#10;  {&#10;    "ProductPrice__c": 89900.12,&#10;    "Description": "2025 Mercedes-Benz C300 Sedan 2.0L Turbo - Product Code MB-C300",&#10;    "ProductCode": "MB-C300",&#10;    "ExternalId": "P00000000022",&#10;    "CurrencyCode__c": "AUD",&#10;    "Name": "Mercedes-Benz C300 2025"&#10;}&#10;]]' />
+			</munit:set-event>
+			<flow-ref doc:name="post:\v1\prc\products:application\json:sf-products-prc-api-config" doc:id="ba9d5fa5-2cba-4fc7-b7ea-f1f7ff5e26b4" name="post:\v1\prc\products:application\json:sf-products-prc-api-config" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert doc:name="Assert payload not null" doc:id="07db94d4-ccc3-4c6d-9e66-c5f967b52c42" />
+			<munit-tools:verify-call doc:name="Verify call end logger" doc:id="20f882f8-e439-48fd-ad91-f550eda0646a" processor="logger" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO: end of create-sf-records-sub-flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="75c46486-08c3-4906-85d3-7cfaab279335" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="update-products-test" doc:id="c319f71d-ab12-46d2-90bc-dff8feb108cf" >
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when SF Update " doc:id="b914e4a7-23e7-44cd-b9d2-90eb520e6647" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="1ae915dc-0eb7-43ad-ac98-b4d17da5cc3a" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="sf-sys-api-http-request-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[output application/json&#10;---&#10;[&#10;    {&#10;        "ExternalId": "01tg50000034MwHAAU",&#10;        "Success": true&#10;    }&#10;]]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event payload" doc:id="b5427a96-d93d-416b-b71d-9a1e0c23d129">
+				<munit:payload value='#[output application/json&#10;---&#10;[&#10;    {&#10;        "ProductPrice__c": 1000.18,&#10;        "Description": "GenWatt Diesel Generator 1000kW - Product Code GC1060",&#10;        "ExternalId": "P00000000001",&#10;        "CurrencyCode__c": "USD",&#10;        "Name": "GenWatt Diesel Gen 1000kW"&#10;    }&#10;]]' />
+			</munit:set-event>
+			<flow-ref doc:name="put:\v1\prc\products\(productId):application\json:sf-products-prc-api-config" doc:id="cd158444-67e4-4577-9eba-077f823a589a" name="put:\v1\prc\products\(productId):application\json:sf-products-prc-api-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert Status" doc:id="103b3cbc-7fdd-416e-8a16-c49b954135f9" actual="#[payload.Success[0]]" expected="#[true]" />
+			<munit-tools:verify-call doc:name="Verify call end logger" doc:id="ce0de1a8-a052-4cc1-b8ff-41c270f6dad8" processor="logger" atLeast="1" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO: end of update product sub flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="e4a6a7e2-2466-449c-872c-207702bda070" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="delete-products-test" doc:id="66871061-57e6-45c2-ac83-5fd2fabc1987" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when System API Request" doc:id="28a48a02-20bb-4662-9f5a-7f4b8fa4a60e" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="SF System API Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1ae915dc-0eb7-43ad-ac98-b4d17da5cc3a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[output application/json&#10;---&#10;[&#10;    {&#10;        "ExternalId": "01tg50000034MwHAAU",&#10;        "Success": true&#10;    }&#10;]]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="delete:\v1\prc\products\(productId):sf-products-prc-api-config" doc:id="2775fb10-1a6e-45be-a620-9e142e219b34" name="delete:\v1\prc\products\(productId):sf-products-prc-api-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call end logger" doc:id="cad35c5c-fdbb-4d8f-8608-d845c8b0513b" processor="logger" atLeast="1" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO: end of delete product sub flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="e05a0021-2a8c-4dad-be46-4730d3a95a75" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+</mule>

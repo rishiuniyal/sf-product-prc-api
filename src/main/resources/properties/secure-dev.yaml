@@ -1,0 +1,11 @@
+# Development environment-specific properties
+
+http:
+  request:
+    sapi:
+      clientId: "![hYfr/2MTU9U4CzXumfLbHhaCd0mNO1887Ev5f+vnpP20xuxew6xryhFEJHYPRPgG]"
+      clientSecret: "![To27C+7eYoz+ryWrlspbc0TUiRN4IWIvyp7oAPJRc8HtwSz+gwfS+imV8PrlWbVv]"
+    
+    currency-sapi:
+      clientId: "![M1z3CSujglTR9PioUtJe9Keq9crUjXZJ4fdT+TGK+l8Jr/NcsfucPcBzuwyNZnrV]"
+      clientSecret: "![GpIXKO+NFds6p67uEdk50jejLwwTPRli7z+wWtYvPLE47wdsm7ac/slV50PYJspj]"

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<sub-flow name="ping-health-check-sub-flow" doc:id="54d82b14-7462-4bf5-bd2b-4c0287aeea28" >
+		<set-payload value="#[output application/json&#10;---&#10;{&#10;	&#10;  &quot;api&quot;: {&#10;    &quot;name&quot;: app.name as String,&#10;    &quot;version&quot;: &quot;v1&quot;,&#10;    &quot;environment&quot;: p('mule.env')&#10;  },&#10;  &quot;status&quot;: &quot;OK&quot;,&#10;  &quot;message&quot;: &quot;Success&quot;,&#10;  &quot;timestamp&quot;: now()&#10;}]" doc:name="Health Status " doc:id="d0605969-5206-46e7-9fcf-149fa5a11886" />
+	</sub-flow>
+</mule>

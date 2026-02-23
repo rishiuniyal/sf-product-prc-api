@@ -1,0 +1,11 @@
+# Production environment-specific properties
+
+http:
+  request:
+    sapi:
+      clientId: ""
+      clientSecret: ""
+    
+    currency-sapi:
+      clientId: ""
+      clientSecret: ""

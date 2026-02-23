@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns:xml-module="http://www.mulesoft.org/schema/mule/xml-module"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:module-custom-logger="http://www.mulesoft.org/schema/mule/module-custom-logger"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:module-logging="http://www.mulesoft.org/schema/mule/module-logging"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/module-logging http://www.mulesoft.org/schema/mule/module-logging/current/mule-module-logging.xsd
+http://www.mulesoft.org/schema/mule/module-custom-logger http://www.mulesoft.org/schema/mule/module-custom-logger/current/mule-module-custom-logger.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/xml-module http://www.mulesoft.org/schema/mule/xml-module/current/mule-xml-module.xsd">
+	<error-handler name="global-error-handler"
+		doc:id="e0d9866c-1914-4a80-ac44-7e0bf4436534">
+		
+		<on-error-propagate enableNotifications="true"
+			logException="true" doc:name="on-error-propagate"
+			doc:id="6c121f64-3610-47ca-98c8-78636b2ce224" type="APIKIT:BAD_REQUEST,APIKIT:NOT_FOUND,APIKIT:METHOD_NOT_ALLOWED,APIKIT:NOT_ACCEPTABLE,APIKIT:UNSUPPORTED_MEDIA_TYPE,APIKIT:NOT_IMPLEMENTED">
+			<logger level="INFO" doc:name="INFO: start of global error handler flow" doc:id="74f9c68d-927b-4e1f-bd79-25ba9153c74f" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of global error handler flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_START&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
+			<ee:transform
+				doc:name="Set HTTP Staus"
+				doc:id="e862d88b-cbbd-4d3e-9a03-83b501fa5c3e">
+				<ee:variables>
+					<ee:set-variable resource="dwl/var-http-status.dwl" variableName="httpStatus" />
+				
+
+</ee:variables>
+			</ee:transform>
+			<flow-ref doc:name="error-response-subFlow"
+				doc:id="a2698e9c-5c61-46e5-99b8-7d1a2944586b"
+				name="error-response-sub-flow" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="on-error-propagate" doc:id="a395333b-b700-4442-8b1a-137656c7954a" type="ANY">
+			<logger level="INFO" doc:name="INFO: start of global error handler flow" doc:id="8cd0add4-83b8-4819-a988-2895006db266" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;start of global error handler flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_START&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
+			<ee:transform doc:name="Set HTTP Staus" doc:id="9708c2f7-9b9f-4d4e-ad90-789360bb9e59">
+				<ee:variables>
+					<ee:set-variable resource="dwl/var-http-status-any.dwl" variableName="httpStatus" />
+				</ee:variables>
+			</ee:transform>
+			<flow-ref doc:name="error-response-subFlow" doc:id="e44482be-010b-41af-98ba-481994a7e430" name="error-response-sub-flow" />
+		</on-error-propagate>
+		
+	
+</error-handler>
+	<sub-flow name="error-response-sub-flow"
+		doc:id="3ce7dc41-12b3-4cce-b810-72418fcf4534">
+		<ee:transform doc:name="DW Set Error Response"
+			doc:id="e2de5731-fc43-46cb-af52-16e59768b35c">
+			<ee:message>
+				<ee:set-payload resource="dwl/msg-global-error-response.dwl" />
+			
+</ee:message>
+			<ee:variables >
+			</ee:variables>
+		
+</ee:transform>
+		<logger level="INFO" doc:name="INFO: end of global error handler flow" doc:id="70df1ca0-df43-46fc-bdbd-31808853a96d" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of global error handler flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_END&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
+		<logger level="ERROR" doc:name="ERROR: end of global error handler flow" doc:id="d3f2b3f3-ab47-4c1e-b5fe-6847442a7384" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of global error handler flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_END&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: payload     &#10;    }&#10;}]" category="${debug.category}" />
+	</sub-flow>
+</mule>

@@ -1,0 +1,33 @@
+# Environment-agnostic properties
+
+http:
+  host: '0.0.0.0'
+  port: '8081'
+  readTimeout: '60000'
+  idleTimeout: '30000'
+  
+  request:
+    path: "/v1/sys/products"
+    responseTimeout: "30000"
+    maxConn: '-1'
+    idleTimeout: '30000'
+    bufferSize: '1024'
+    
+  currency-sapi:
+    path: "/v1/currency"
+    
+os:
+  maxEntries: ""
+  ttl: "23"
+  expirationInterval: "24"
+    
+application:
+  name: "sf-products-prc-api"
+  version: "v1"
+  
+reconnection:
+  attempts: "3"
+  frequency: "5000"
+  
+debug:
+  category: "debug.sf.com"

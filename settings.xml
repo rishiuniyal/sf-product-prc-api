@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+<servers>
+		<server>
+			<id>anypoint-exchange-v3</id>
+			<username>~~~Client~~~</username>
+			<password>7e4d9a6e338c47d684ea2d8a71915470~?~1285052797554318B706a65b1c6BF97e</password>
+		</server>
+</servers>
+<profiles>
+    <profile>
+        <id>Mule</id>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+        <repositories>
+        </repositories>
+    </profile>
+	<profile>
+        <id>anypoint-exchange-v3</id>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+		<properties>
+                <mulesoft.exchange.groupid>020f4d86-fd4b-4d1d-9b27-999b89093231</mulesoft.exchange.groupid>
+         </properties>
+        <repositories>
+            <repository>
+                <id>anypoint-exchange-v3</id>
+                <name>anypoint-exchange-v3</name>
+                <url>https://maven.anypoint.mulesoft.com/api/v3/organizations/020f4d86-fd4b-4d1d-9b27-999b89093231/maven</url>
+                <layout>default</layout>
+                <releases>
+                    <enabled>true</enabled>
+                </releases>
+                <snapshots>
+                    <enabled>true</enabled>
+                </snapshots>
+            </repository>
+        </repositories>
+    </profile>
+</profiles>   
+</settings>

@@ -12,10 +12,10 @@ var suppressed = error.suppressedErrors[0] default[]
 	errorType: if(!isEmpty(suppressed))
 					(suppressed.errorType.namespace default "" ++ ":" ++ suppressed.errorType.identifier default "")
 			   else
-					vars.errorMesssage.errorType default ((error.errorType.namespace default "") ++ ":" ++ (error.errorType.identifier default "")),
+					vars.errorMessage.errorType default ((error.errorType.namespace default "") ++ ":" ++ (error.errorType.identifier default "")),
 	
 	errorMessage: if(!isEmpty(suppressed))
 					suppressed.description default error.description
 				  else
-					error.errorMessage.payload.errorMessage default error.description
+					vars.errorMessage.errorDescription default error.description
 }

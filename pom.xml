@@ -3,10 +3,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>020f4d86-fd4b-4d1d-9b27-999b89093231</groupId>
-	<artifactId>sf-products-prc-api</artifactId>
-	<version>1.0.0</version>
+	<artifactId>sf-products-papi</artifactId>
+	<version>1.0.1</version>
 	<packaging>mule-application</packaging>
-	<name>sf-products-prc-api-dev</name>
+	<name>sf-products-prc-api</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -45,7 +45,7 @@
 						<connectedAppClientSecret>${CLIENT_SECRET}</connectedAppClientSecret>
 						<connectedAppGrantType>client_credentials</connectedAppGrantType>
 						<businessGroupId>${businessGroupId}</businessGroupId>
-						<applicationName>sf-products-sys-api-${mule.env}</applicationName>
+						<applicationName>sf-products-prc-api</applicationName>
 						<javaVersion>17</javaVersion>
 						<replicas>${replicas}</replicas>
 						<vCores>${vCores}</vCores>
@@ -67,8 +67,8 @@
 						</deploymentSettings>
 						<secureProperties>
 							<mule.key>${mule.key}</mule.key>
-							<username>${username}</username>
-							<password>${password}</password>
+							<anypoint.platform.client_id>${AP.CLIENT_ID}</anypoint.platform.client_id>
+							<anypoint.platform.client_secret>${AP.CLIENT_SECRET}</anypoint.platform.client_secret>
 						</secureProperties>
 					</cloudhub2Deployment>
 					<classifier>mule-application</classifier>

@@ -3,7 +3,7 @@
 http:
   request:
     sapi:
-      clientId: "![4ZWo5hhaY10ySzYXGImIeq62yY4caYL1gbk3XbFG+RSdv0aSy1PpBZJE8ltxorf6]"
+      clientId: "![hYfr/2MTU9U4CzXumfLbHhaCd0mNO1887Ev5f+vnpP20xuxew6xryhFEJHYPRPgG]"
       clientSecret: "![To27C+7eYoz+ryWrlspbc0TUiRN4IWIvyp7oAPJRc8HtwSz+gwfS+imV8PrlWbVv]"
     
     currency-sapi:

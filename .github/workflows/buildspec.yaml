@@ -1,0 +1,42 @@
+# This workflow will build a MuleSoft project and deploy to CloudHub
+
+name: Cloudhub deployment with Maven [dev]
+
+on:
+  push:
+    branches: [ dev ]
+  
+env:
+  CLIENT_ID: ${{ secrets.CLIENT_ID }}
+  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+  BUSINESS_GROUP_ID: ${{secrets.BUSINESS_GROUP_ID}}
+  MULE_KEY: ${{secrets.MULE_KEY}}
+  AP_CLIENT_ID: ${{secrets.AP_CLIENT_ID}}
+  AP_CLIENT_SECRET: ${{secrets.AP_CLIENT_SECRET}}
+
+jobs:
+  BuildAndDeploy:
+    runs-on: ubuntu-latest
+    environment: dev
+    
+    steps:
+    
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Maven 3.8.6
+      run: |
+        wget https://archive.apache.org/dist/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.tar.gz
+        tar -xvzf apache-maven-3.8.6-bin.tar.gz
+        sudo mv apache-maven-3.8.6 /opt/maven
+        echo "MAVEN_HOME=/opt/maven" >> $GITHUB_ENV
+        echo "/opt/maven/bin" >> $GITHUB_PATH
+    - name: Verify Maven Version
+      run: mvn -version
+    
+    - name: Deploy to Exchange
+      run: mvn clean deploy -s settings.xml -DskipTests
+      
+    - name: Deploy to Runtime
+
+      run: mvn clean deploy -s settings.xml -DmuleDeploy -DskipTests -Denvironment=Sandbox -Dtarget=Cloudhub-US-East-2 -DmuleVersion=4.9.14 -DCLIENT_ID=$CLIENT_ID -DCLIENT_SECRET=$CLIENT_SECRET -DbusinessGroupId=$BUSINESS_GROUP_ID -Dmule.env=dev -Dreplicas=1 -DvCores=0.1 -Dmule.key=$MULE_KEY -DAP.CLIENT_ID=$AP_CLIENT_ID -DAP.CLIENT_SECRET=$AP_CLIENT_SECRET

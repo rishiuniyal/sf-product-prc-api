@@ -9,7 +9,6 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
     <configuration-properties doc:name="Configuration properties" doc:id="9d015d85-152c-471d-92cc-550b039460df" doc:description="Environment-agnostic properties" file="properties/common.yaml" />
     <configuration-properties doc:name="Configuration properties" doc:id="1d9c81de-790e-4832-b752-60c31f8d8215" file="properties/${mule.env}.yaml" doc:description="Environment-specific properties" />
     <secure-properties:config name="secure-properties-config" doc:name="Secure Properties Config" doc:id="9174e84d-c26a-4ac8-b9b7-e5ddec0ec37b" doc:description="Environment-specific secure properties" file="properties/secure-${mule.env}.yaml" key="${mule.key}" />
-    <configuration doc:name="Configuration" doc:id="b60c720d-001e-481b-ae95-d49e50405b75" defaultErrorHandler-ref="global-error-handler" doc:description="Global configuration for default error handler" />
     <global-property doc:name="Global Property" doc:id="655b4e5f-c05d-4fce-985b-d65fefd16715" name="mule.env" value="dev" />
     <global-property doc:name="Global Property" doc:id="e149dee7-501a-41a0-8914-b991a0061991" name="mule.key" value="sfr2mulesoft2026" />
     <http:request-config name="curreny-converter-http-request-config" doc:name="HTTP Request configuration" doc:id="5742ed63-da66-40f4-a328-8e7f29bc21c4">

@@ -32,8 +32,8 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 				<http:headers><![CDATA[#[output application/json
 ---
 {
-	"client_id": p('http.request.clientId'),
-	"client_secret": p('http.request.secret')
+	"client_id": p('secure::http.request.sapi.clientId'),
+	"client_secret": p('secure::http.request.sapi.clientSecret')
 }]]]></http:headers>
 				<http:query-params><![CDATA[#[output aplication/json
 ---
@@ -48,7 +48,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 						<logger level="ERROR" doc:name="ERROR: server error from upstream" doc:id="df6daaf0-53be-4c9f-9466-1f12111dc4f6" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;server error from upstream system&quot;,&#10;        &quot;app&quot;:app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AT_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
 					</on-error-propagate>
 					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="e52c1667-4062-4b12-a537-56cdd0a5d01f">
-						<set-variable value='#[{&#10;	"errorDescription": error.description,&#10;	"errorType": (error.errorType.namespace default "") ++ ":" ++ (error.errorType.identifier default "")&#10;	&#10;}]' doc:name="errorMessage" doc:id="fe0e1f20-edd1-4629-8c9b-ef3db1ee7d49" variableName="errorMessage" />
+						<set-variable value='#[output application/json&#10;---&#10;{&#10;	"errorDescription": if(typeOf(error.errorMessage.payload) ~= "Binary") error.description else (error.errorMessage.payload.errorMessage default error.description),&#10;	"errorType": (error.errorType.namespace default "") ++ ":" ++ (error.errorType.identifier default "")&#10;	&#10;}]' doc:name="errorMessage" doc:id="fe0e1f20-edd1-4629-8c9b-ef3db1ee7d49" variableName="errorMessage" />
 						<logger level="INFO" doc:name="INFO: continue non retry error" doc:id="a829c220-681f-4c6e-bbf5-fdeb133d8572" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;continue non retry error&quot;,&#10;        &quot;app&quot;:app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AT_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
 					</on-error-continue>
 				</error-handler>
@@ -68,14 +68,21 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 		<until-successful maxRetries="${reconnection.attempts}" doc:name="Until Successful1" doc:id="32acf5ad-29d5-4c32-a164-547791c5c8ed" millisBetweenRetries="${reconnection.frequency}">
 			<try doc:name="Try" doc:id="a7344dcc-936c-4790-ba47-143f4ebf1746">
 				<ee:cache doc:name="Cache" doc:id="72d5c086-1ef5-4941-83cb-65d1e192b994" cachingStrategy-ref="currency-sap-caching-config">
-					<http:request method="GET" doc:name="Current Exchange Request" doc:id="22a500db-77bb-40ac-bad5-2bf77f8a63f2" responseTimeout="${http.request.responseTimeout}" config-ref="curreny-converter-http-request-config" sendCorrelationId="ALWAYS" url="https://currency-exchange-api-v1-esulbe.5sc6y6-3.usa-e2.cloudhub.io/exchange" />
+					<http:request method="GET" doc:name="Current Exchange Request" doc:id="22a500db-77bb-40ac-bad5-2bf77f8a63f2" responseTimeout="${http.request.responseTimeout}" config-ref="curreny-converter-http-request-config" sendCorrelationId="ALWAYS" url="https://currency-exchange-api-v1-esulbe.5sc6y6-3.usa-e2.cloudhub.io/exchange" >
+						<http:headers ><![CDATA[#[output application/json
+---
+{
+	"client_id": p('secure::http.request.currency-sapi.clientId'),
+	"client_secret": p('secure::http.request.currency-sapi.clientSecret')
+}]]]></http:headers>
+					</http:request>
 				</ee:cache>
 				<error-handler>
 					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2ece925b-7a50-4b22-9cb4-07e3b9080789" type="HTTP:BAD_GATEWAY, HTTP:CONNECTIVITY, HTTP:SERVICE_UNAVAILABLE">
 						<logger level="ERROR" doc:name="ERROR: server error from upstream" doc:id="bfc519b0-31ec-40b1-8712-0979d045107a" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;server error from upstream system&quot;,&#10;        &quot;app&quot;:app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AT_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
 					</on-error-propagate>
 					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c1e034bd-dbed-4ed7-a1ee-a0cbec7a921d">
-						<set-variable value='#[{&#10;	"errorDescription": error.description,&#10;	"errorType": (error.errorType.namespace default "") ++ ":" ++ (error.errorType.identifier default "")&#10;	&#10;}]' doc:name="errorMessage" doc:id="3c22202f-d3cf-4d28-a307-da76b2ef87d3" variableName="errorMessage" />
+						<set-variable value='#[output application/json&#10;---&#10;{&#10;	"errorDescription": if(typeOf(error.errorMessage.payload) ~= "Binary") error.description else (error.errorMessage.payload.errorMessage default error.description),&#10;	"errorType": (error.errorType.namespace default "") ++ ":" ++ (error.errorType.identifier default "")&#10;	&#10;}]' doc:name="errorMessage" doc:id="3c22202f-d3cf-4d28-a307-da76b2ef87d3" variableName="errorMessage" />
 						<logger level="INFO" doc:name="INFO: continue non retry error" doc:id="7c0a4206-ea0e-4a9c-b5bb-9a7a370db622" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;continue non retry error&quot;,&#10;        &quot;app&quot;:app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AT_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null&#10;    }&#10;}]" />
 					</on-error-continue>
 				</error-handler>

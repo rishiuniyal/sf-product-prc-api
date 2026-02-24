@@ -4,9 +4,6 @@ http:
   request:
     host: ""
     port: ""
-    responseTimeout: "30000"
-    maxConn: '-1'
-    idleTimeout: '30000'
     
     currency-sapi:
       host: ""

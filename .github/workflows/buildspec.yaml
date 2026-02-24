@@ -39,4 +39,4 @@ jobs:
       
     - name: Deploy to Runtime
 
-      run: mvn clean deploy -s settings.xml -DmuleDeploy -DskipTests -Denvironment=Sandbox -Dtarget=Cloudhub-US-East-2 -DmuleVersion=4.9.14 -DCLIENT_ID=$CLIENT_ID -DCLIENT_SECRET=$CLIENT_SECRET -DbusinessGroupId=$BUSINESS_GROUP_ID -Dmule.env=dev -Dreplicas=1 -DvCores=0.1 -Dmule.key=$MULE_KEY -DAP.CLIENT_ID=$AP_CLIENT_ID -DAP.CLIENT_SECRET=$AP_CLIENT_SECRET
+      run: mvn clean deploy -s settings.xml -DmuleDeploy -DskipTests -Denvironment=Sandbox -Dtarget=Cloudhub-US-East-2 -DmuleVersion=4.9.14 -DCLIENT_ID=$CLIENT_ID -DCLIENT_SECRET=$CLIENT_SECRET -DbusinessGroupId=$BUSINESS_GROUP_ID -Dmule.env=dev -Dreplicas=1 -DvCores=0.1 -Dmule.key=$MULE_KEY -DAP.CLIENT_ID=$AP_CLIENT_ID -DAP.CLIENT_SECRET=$AP_CLIENT_SECRET -Dhttp.keepAlive=false -Dmaven.wagon.http.retryHandler.count=5 -Dmaven.wagon.http.timeout=1200000 -Dmaven.artifact.threads=1

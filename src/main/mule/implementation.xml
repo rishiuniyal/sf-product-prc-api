@@ -91,8 +91,18 @@ payload]]></ee:set-variable>
 			<ee:message>
 				<ee:set-payload resource="dwl/msg-create-payload-to-json.dwl" />
 			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="successRecords" ><![CDATA[%dw 2.0
+output application/json
+---
+payload[?($.Success == true)]]]></ee:set-variable>
+				<ee:set-variable variableName="failedRecords" ><![CDATA[%dw 2.0
+output application/json
+---
+payload[?($.Success == false)]]]></ee:set-variable>
+			</ee:variables>
 		</ee:transform>
-		<logger level="DEBUG" doc:name="DEBUG: end of create-sf-records-sub-flow" doc:id="03ec4425-8b5d-4ea9-b73e-ea627f2b8d18" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of create-sf-records-sub-flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AFTER_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: write(payload,&quot;application/json&quot;)        &#10;    }&#10;}]" category="${debug.category}" />
+		<logger level="DEBUG" doc:name="DEBUG: end of create-sf-records-sub-flow" doc:id="03ec4425-8b5d-4ea9-b73e-ea627f2b8d18" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of create-sf-records-sub-flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;AFTER_REQUEST&quot;,&#10;        &quot;Log-Level&quot;:&quot;DEBUG&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: {&#10;        		&quot;successRecords&quot;: vars.successRecords,&#10;        		&quot;failedRecords&quot;: vars.failedRecords&#10;        }      &#10;    }&#10;}]" category="${debug.category}" />
 		<logger level="INFO" doc:name="INFO: end of create-sf-records-sub-flow" doc:id="75c46486-08c3-4906-85d3-7cfaab279335" message="#[%dw 2.0&#10;output application/json skipNullOn=&quot;everywhere&quot;&#10;---&#10;{&#10;    &quot;log-message&quot;:{&#10;        &quot;message&quot;:&quot;end of create-sf-products-sub-flow&quot;,&#10;        &quot;app&quot;: app.name,&#10;        &quot;log-tracepoint&quot;: &quot;FLOW_END&quot;,&#10;        &quot;Log-Level&quot;:&quot;INFO&quot;,&#10;        &quot;Environment&quot;: p('mule.env'),&#10;        &quot;correlationId&quot;: correlationId,&#10;        &quot;Payload&quot;: null   &#10;    }&#10;}]" />
 	</sub-flow>
 	<sub-flow name="update-sf-product-sub-flow" doc:id="ecd383ae-7b4d-465e-940f-c84a785d6a97" >
